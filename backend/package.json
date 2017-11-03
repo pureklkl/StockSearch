@@ -1,0 +1,22 @@
+{
+  "name": "stockapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yuanfanp",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.17.0",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "moment": "^2.19.1",
+    "moment-timezone": "^0.5.13",
+    "xml2js": "^0.4.19"
+  },
+ "scripts": {
+ 	"start": "node index.js"
+ } 
+}

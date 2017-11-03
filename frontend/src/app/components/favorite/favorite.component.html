@@ -1,0 +1,78 @@
+<div class="panel panel-default">
+	<div class="panel-heading" style="position: relative;overflow: hidden;">
+		<span style="position: absolute;right: 5px">
+			<input type="checkbox" id="auto-refresh">
+			<button type="button" class="btn btn-default">
+				<span class="glyphicon glyphicon-refresh" aria-hidden="true" (click)="refresh()"></span>
+			</button>
+			<button type="button" class="btn goDetail">
+				<a class = "goDetail" routerLink= "/stock-detail">
+					<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
+				</a>
+			</button>
+		</span>
+		<div style="font-weight: bold;font-size: 20px;position: relative;float: left;">
+			Favorite List
+		</div>
+
+	</div>
+	<div class="panel-body">
+		<div class="row" style="padding-bottom: 10px;text-align: left;padding-left: 10px">
+			<div class="col-sm-1 col-xs-12 vcenter">
+				<label><span style="font-weight: bold">Sort By</span></label>
+			</div>
+			<div class="col-sm-2 col-xs-12 vcenter">
+				<select class="selectpicker" data-width="100%"   id="dropdownMenu1">
+				  <option value="Default">Default</option>
+				  <option value="Symbol">Symbol</option>
+				  <option value="Price">Price</option>
+				  <option value="Change">Change</option>
+				  <option value="Change Percent">Change Percent</option>
+				  <option value="Volume">Volume</option>
+				</select>
+		   	</div>
+			<div class="col-sm-1 col-xs-12 vcenter">
+				<label><span style="font-weight: bold">Order</span></label>
+			</div>
+			<div class="col-sm-2 col-xs-12 vcenter">
+				<select class="selectpicker" data-width="100%"   id="dropdownMenu2">
+					<option value="Ascending">Ascending</option>
+					<option value="Descending">Descending</option>
+				</select>
+		   	</div>
+		</div>
+		<table class="table table-striped">
+			<tr>
+				<th>Symbol</th>
+				<th>Stock Price</th>
+				<th>Change(Change Percent)</th>
+				<th>Volume</th>
+				<th></th>
+			</tr>
+			<tr *ngFor="let favor of favArray">
+				<td>
+					<a (click)="naviFavor($event)">{{favor.Symbol}}</a>
+				</td>
+				<td>{{favor.Price | number: '1.2-2'}}</td>
+				<td>
+					<span [ngStyle] ="{'color': favor.Change > 0.0 ? 'green' : favor.Change < 0.0 ? 'red' : 'black'}">
+					{{favor.Change | number: '1.2-2' }}({{favor['Change Percent'] | percent: '1.0-2'}})
+					</span>
+					<ng-template [ngIf]="favor.Change > 0.0">
+						<img class = "stChange" src = "http://cs-server.usc.edu:45678/hw/hw6/images/Green_Arrow_Up.png">
+					</ng-template>
+					<ng-template [ngIf]="favor.Change < 0.0">
+						<img class = "stChange" src = "http://cs-server.usc.edu:45678/hw/hw6/images/Red_Arrow_Down.png">
+					</ng-template>
+				</td>
+				<td>{{favor.VolumeStr}}</td>
+				<td>
+					<button type="button" class="btn btn-default" attr.stsymbol="{{favor.Symbol}}" 
+					(click)="deleteFavor($event)">
+						<span class="glyphicon glyphicon-trash" ></span>
+					</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

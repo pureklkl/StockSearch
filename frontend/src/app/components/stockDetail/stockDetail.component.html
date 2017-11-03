@@ -1,0 +1,133 @@
+<div class="panel panel-default">
+	<div class="panel-heading" style="position: relative;">
+		<button type="button" class="btn btn-default" style="position: absolute;left: 5px">
+			<a routerLink= "/favorite">
+				<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
+		</button>
+		<span style="font-weight: bold;font-size: 24px">Stock Details</span>
+	</div>
+	<div class="panel-body">
+		<ul class="nav nav-pills" role="tablist" id="stockDetail-navInfo">
+		  <li role="presentation" class="active">
+		  	<a class="info-ind" id = "table-chart" href="#current-stock" aria-controls="current-stock" role="tab" data-toggle="tab">
+		  	<span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>
+					<span class="hide-on-xs">Current </span>Stock</a></li>
+		  <li role="presentation">
+		  	<a class="info-ind" id="stock-chart" href="#historical-charts" aria-controls="historical-charts" role="tab" data-toggle="tab">
+		  	<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+					<span class="hide-on-xs">Historical </span>Charts</a></li>
+		  <li role="presentation">
+		  	<a class="info-ind" id = "stock-news" href="#news-feeds" aria-controls="news-feeds" role="tab" data-toggle="tab">
+		  	<span class="glyphicon glyphicon-link" aria-hidden="true"></span>
+					News<span class="hide-on-xs"> Feeds</span></a></li>
+		</ul>
+		<hr>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade in active" id="current-stock">
+				<div class="row is-inline-height">
+					<div class="col-sm-6 col-xs-12">
+						<div style="display: flex; justify-content: space-between;padding: 10px;height: 15%;min-height: 40px">
+							<span style="font-weight: bold;">Stock Details</span>
+							<div style="display: inline-block;">
+								<button type="button" class="btn btn-default" 
+								id="stockDetail-favorite"
+								(click) = "onFlipFavor()">
+									<span
+									[ngClass]="{
+									'glyphicon' : true,
+									'glyphicon-star' : isFavor,
+									'glyphicon-star-empty' : !isFavor }"
+									 style="height: 25px;font-size: 20px"
+									[ngStyle]="{'color': isFavor ? 'yellow' : 'black' }"
+									 ></span>
+								</button>
+								<button type="button" class="btn btn-default" id="stockDetail-shareFB" (click) = "shareOnFB($event)">
+									<img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" style="height: 25px">
+								</button>
+							</div>
+						</div>
+						
+						<ng-template [ngIf]="showTableState === 'success'">
+							<div style="height: 85%">
+								<stock-info [data] = "tableData">
+								</stock-info>
+							</div>
+						</ng-template>
+						
+						<div style="margin-top: 42px;width: 100%">
+							<ng-template [ngIf]="showTableState === 'progress'">
+								<div class="progress">
+	  								<div class="progress-bar progress-bar-info active progress-bar-striped" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width:10%"></div>
+	    						</div>
+							</ng-template>
+							<ng-template [ngIf]="showTableState === 'error'">
+									<div class="alert alert-danger" role="alert">fail to get stock info</div>
+							</ng-template>
+						</div>
+					</div>
+					<div class="col-sm-6 col-xs-12">
+						<ul class="nav nav-tabs" id="stockDetail-navInd">
+							<li role="presentation" class="active">
+								<a class="chart-ind" role="tab" data-toggle="tab" href="#Price">Price</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">SMA</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">EMA</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">STOCH</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">RSI</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">ADX</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">CCI</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">BBANDS</a></li>
+							<li role="presentation">
+								<a class="chart-ind" role="tab" data-toggle="tab">MACD</a></li>
+						</ul>
+						<div *ngIf="showChartState == 'success'">
+							<stock-chart [data]="chartData"></stock-chart>
+							<div id = "stock-ind-chart"></div>
+						</div>
+						<div *ngIf="showChartState == 'progress'">
+							<div class="progress">
+  								<div class="progress-bar progress-bar-info progress-bar-striped active" id="chart-progress" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width:10%"></div>
+    						</div>
+						</div>
+						<div *ngIf="showChartState == 'error'">
+							<div class="alert alert-danger" role="alert">fail to get stock info</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div role="tabpanel" class="tab-pane fade" id="historical-charts">
+				<ng-template [ngIf]="showStockChartState === 'success'">
+					<stock-chart [stockData]="stockData"></stock-chart>
+					<div id = "stock-price-chart"></div>
+				</ng-template>
+				<ng-template [ngIf]="showStockChartState === 'progress'">
+					<div class="progress">
+							<div id="stock-progress" class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width:10%;"></div>
+					</div>
+				</ng-template>
+				<ng-template [ngIf]="showStockChartState === 'error'">
+					<div class="alert alert-danger" role="alert">fail to get stock info</div>
+				</ng-template>
+			</div>
+			<div role="tabpanel" class="tab-pane fade" id="news-feeds">
+				<ng-template [ngIf]="showStockNewsState === 'success'">
+					<stock-news [data]="newsData"></stock-news>
+				</ng-template>
+				<ng-template [ngIf]="showStockNewsState === 'progress'">
+					<div class="progress">
+							<div id='news-progress' class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width:10%"></div>
+					</div>
+				</ng-template>
+				<ng-template [ngIf]="showStockNewsState === 'error'">
+					<div class="alert alert-danger" role="alert">fail to get stock info</div>
+				</ng-template>
+			</div>
+		</div>
+	</div>	
+</div>

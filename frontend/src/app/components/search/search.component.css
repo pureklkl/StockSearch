@@ -1,0 +1,22 @@
+i {
+	position: relative;
+	top:5px;
+}
+#search-panel {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+@media only screen and (max-width: 768px) {
+	.col-xs-12 {
+    	text-align: left;
+    	padding-right: 30px;
+    	padding-left: 30px;
+    }
+    .starter {
+
+    }
+}
+
+
+

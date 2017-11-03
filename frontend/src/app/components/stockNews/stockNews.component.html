@@ -1,0 +1,9 @@
+<div>
+	<div class="well" *ngFor="let news of newses" style="text-align: left;">
+		<h3>
+			<a href={{news.link}} target="_blank">{{news.title}}</a>
+		</h3>
+		<p><b>{{news['sa:author_name']}}</b></p>
+		<p><b>{{news.pubDate}}</b></p>
+	</div>
+</div>

@@ -1,0 +1,27 @@
+::ng-deep .nav-item {
+	width: auto !important;
+}
+
+::ng-deep .nav-link{
+	border-bottom: 0px !important;
+}
+
+:host {display: block;}
+
+.nav-tabs>li>a:hover {
+	cursor: pointer;
+}
+
+@media only screen and (min-width : 768px) {
+    .is-inline-height {
+        display: inline-flex;
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+	.hide-on-xs {
+    	display: none;
+    }
+}
+

@@ -1,0 +1,49 @@
+p {
+    width:200px;
+    background:lightgray;
+    margin: 100px auto;
+    text-align:center;
+    padding:20px;
+    font-size:1.5em;
+  }
+
+:host {display: block;}
+
+span .caret {
+	float: right;
+}
+
+.dropdown button:first-child {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.dropdown button:first-child > .caret {
+	align-self: center;
+}
+
+.stChange {
+	height: 12px;
+}
+
+td {
+	text-align: left;
+}
+
+a {
+	cursor: pointer;
+}
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+@media only screen and (max-width: 500px) {
+	table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}		
+}

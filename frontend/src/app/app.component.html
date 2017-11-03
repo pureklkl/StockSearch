@@ -1,0 +1,14 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div id="main-container" style="padding-top: 20px">
+	<div class="container" style="text-align:center">
+		<div style="margin-bottom: 10px">
+		<search-panel></search-panel>
+		</div>
+		<hr style="border-top: 1px solid rgba(255,255,255,1.0)">
+		<div id = "trans" class="well" [@routerAnimation]="getRouteAnimation(route)" style="width: 100%;
+		background-color: #fff; padding: 1.5%">
+		  	<router-outlet #route="outlet"></router-outlet>
+		</div>
+		
+	</div>
+</div>

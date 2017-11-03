@@ -1,0 +1,13 @@
+.stKey {
+	font-weight: bold;
+	width: 40%;
+	text-align: left;
+}
+.stData {
+	text-align: center;
+	width: 60%;
+}
+
+.stChange {
+	height: 12px;
+}

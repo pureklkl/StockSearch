@@ -1,0 +1,44 @@
+<table class="table table-striped" style="height: 100%">
+		<tr>
+			<td class="stKey">Stock Ticker Symbol</td>
+			<td class="stData">{{symbol}}</td>
+		</tr>
+		<tr>
+			<td class="stKey">Last Price</td>
+			<td class="stData">{{lastPrice | number: '1.2-2'}}</td>
+		</tr>
+		<tr>
+			<td class="stKey">Change (Change Percent)</td>
+			<td class="stData">
+				<span [ngStyle] ="{'color': change > 0.0 ? 'green' : change < 0.0 ? 'red' : 'black'}">
+					{{change | number: '1.2-2'}}({{changePercent}})
+				</span>
+				<ng-template [ngIf]="change > 0.0">
+					<img class = "stChange" src = "http://cs-server.usc.edu:45678/hw/hw6/images/Green_Arrow_Up.png">
+				</ng-template>
+				<ng-template [ngIf]="change < 0.0">
+					<img class = "stChange" src = "http://cs-server.usc.edu:45678/hw/hw6/images/Red_Arrow_Down.png">
+				</ng-template>
+			</td>
+		</tr>
+		<tr>
+			<td class="stKey">Timestamp</td>
+			<td class="stData">{{timeStamp}}</td> 
+		</tr>
+		<tr>
+			<td class="stKey">Open</td>
+			<td class="stData">{{open | number: '1.2-2'}}</td>
+		</tr>
+		<tr>
+			<td class="stKey">Close</td>
+			<td class="stData">{{close | number: '1.2-2'}}</td>
+		</tr>
+		<tr>
+			<td class="stKey">Day's Range</td>
+			<td class="stData">{{low | number: '1.2-2'}} - {{high | number: '1.2-2'}}</td>
+		</tr>
+		<tr>
+			<td class="stKey">Volume</td>
+			<td class="stData">{{volume}}</td>
+		</tr>
+</table>
