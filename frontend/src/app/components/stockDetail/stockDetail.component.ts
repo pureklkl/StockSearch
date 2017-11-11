@@ -46,14 +46,14 @@ export class StockDetail implements OnInit, AfterViewInit{
 		this.favSet = JSON.parse(localStorage.getItem("favSet")) || {};
 		this.isFavor = this.favSet[this.dataSource.symbol] != null;
 		this.dataSource.setAssociateDetail(this);
+		$('#stockDetail-favorite').prop('disabled', true);
+		$('#stockDetail-shareFB').prop('disabled', true);
 		this.getData();
 	}
 
 	ngAfterViewInit(){
 		$('a.chart-ind').on('click', this.onIndTabChange.bind(this));
 		$('a.info-ind').on('click', this.onInfoTabChange.bind(this));
-		$('#stockDetail-favorite').prop('disabled', true);
-		$('#stockDetail-shareFB').prop('disabled', true);
 		this.showInfoTab();
 	}
 
