@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, URLSearchParams } from '@angular/http';
-import { stocks } from './mock_autocomplete';
+import { stocks } from './mockdata/mock_autocomplete';
 import { Observable }  from 'rxjs/Observable';
 import { BACKEND_API } from './apis';
 
@@ -13,7 +13,7 @@ export class AutoCompleteService {
 	api : string;
 	params : URLSearchParams;
 	constructor(private  http: Http) {
-		this.api = BACKEND_API + "symbolHint";
+		this.api = BACKEND_API + "api/stock/hint";
 		this.params = new URLSearchParams();
 	}
 	getStockSymbols(term : string) : Observable<any[]> {

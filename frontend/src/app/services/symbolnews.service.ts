@@ -8,7 +8,7 @@ import { HttpClient, HttpEventType,  HttpResponse } from '@angular/common/http';
 
 import { BACKEND_API } from './apis';
 
-import * as newsdata from './mock_news';
+import * as newsdata from './mockdata/mock_news';
 
 import * as xml2js from 'xml2js';
 
@@ -21,7 +21,7 @@ export class SymbolNewsService {
 
 	constructor(private http: HttpClient) {
 		this.symbol = "";
-		this.api = BACKEND_API+"searchNews?";
+		this.api = BACKEND_API+"api/stock/news?";
 	}
 
 	testSearchSymbol(

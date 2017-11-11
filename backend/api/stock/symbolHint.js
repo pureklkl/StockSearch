@@ -1,6 +1,4 @@
-var express = require('express');
-var router = express.Router();
-var queryApi = require('./queryApi.js');
+var queryApi = require('../../utils/queryApi.js');
 
 class SymbolHint{
 	static getHintApi(){return "http://dev.markitondemand.com/MODApis/Api/v2/Lookup/json";}
@@ -12,10 +10,8 @@ class SymbolHint{
 	}
 }
 
-router.get('/', function(req, res){
+exports.getHint = function(req, res){
 	SymbolHint.searchSymbol(req.query.symbol)
 	.then(searchResult=>{res.json(searchResult);})
 	.catch(e=>{res.status(500).json(e.message);});
-});
-
-module.exports = router;
+};

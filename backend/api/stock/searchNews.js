@@ -1,6 +1,4 @@
-var express = require('express');
-var router = express.Router();
-var queryApi = require('./queryApi.js');
+var queryApi = require('../../utils/queryApi.js');
 
 class searchNews {
 	static getNewsApi() {return "https://seekingalpha.com/api/sa/combined/";}
@@ -27,7 +25,7 @@ class searchNews {
 	}
 }
 
-router.get('/', function(req, res){
+exports.getNews = function(req, res){
 	searchNews.search(req.query.symbol)
 	.then(searchResult=>{res.json(searchResult);})
 	.catch(e=>{
@@ -38,6 +36,4 @@ router.get('/', function(req, res){
 			res.status(500).json(e.message);
 		}
 	});
-});
-
-module.exports = router;
+}

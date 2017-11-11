@@ -1,11 +1,11 @@
-var express = require('express');
-var router = express.Router();
-var queryApi = require('./queryApi.js');
+"use strict";
+
+var queryApi = require('../../utils/queryApi.js');
 
 class searchStock {
 
- 	static getStockApi() { return "https://www.alphavantage.co/query?"; };
- 	static getStockApiKey() { return "I1MVB74HWHGOUD33"; };
+ 	static getStockApi() { return "https://www.alphavantage.co/query?"; }
+ 	static getStockApiKey() { return "I1MVB74HWHGOUD33"; }
  	//http://localhost:3000/search?symbol=AAPL&func=TIME_SERIES_DAILY_ADJUSTED&number=10
  	static parseResult(data, number) {
  		number = Math.max(number, 1);
@@ -90,25 +90,22 @@ class searchStock {
 	}
 }
 
-router.get('/', function(req, res){
+exports.searchOne = function(req, res){
 	searchStock.searchSymbol(req.query.symbol, req.query.func, parseInt(req.query.number))
 	.then(searchResult=>{
-		console.log('searchResult');
 		res.json(searchResult);})
 	.catch(e=>{res.status(500).json(e.message);});
-});
+}
 
-router.post('/', function(req, res){
+exports.searchList = function(req, res){
 	searchStock.queryStockList(req.body)
 	.then(searchResult=>{
 		res.json(searchResult);})
 	.catch(e=>{res.status(500).json(e.message);});
-});
+}
 
-router.get('/forTest', function(req, res){
+exports.test = function(req, res){
 	searchStock.queryStockList([req.query.symbol1, req.query.symbol2])
 	.then(searchResult=>{res.json(searchResult);})
 	.catch(e=>{res.status(500).json(e.message);});
-});
-
-module.exports = router;
+}

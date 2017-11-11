@@ -72,7 +72,7 @@ export class AppSearch implements OnInit{
 					(<any>$(el)).parent().removeClass(error);
 				},
 				submitHandler: (form) => {
-					this.symbolSearch.symbol = $('#symbol').val().trim();
+					this.symbolSearch.symbol = $('#symbol').val().trim().toUpperCase();
 					this.symbolSearch.searching = true;
 					if(this.router.url === '/favorite') {
 						this.router.navigateByUrl('stock-detail');

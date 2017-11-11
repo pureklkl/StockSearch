@@ -68,23 +68,32 @@
 					<div class="col-sm-6 col-xs-12">
 						<ul class="nav nav-tabs" id="stockDetail-navInd">
 							<li role="presentation" class="active">
-								<a class="chart-ind" role="tab" data-toggle="tab" href="#Price">Price</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab" 
+								href="#Price">Price</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">SMA</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#SMA">SMA</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">EMA</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#EMA">EMA</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">STOCH</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#STOCH">STOCH</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">RSI</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#RSI">RSI</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">ADX</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#ADX">ADX</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">CCI</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#CCI">CCI</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">BBANDS</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#BBANDS">BBANDS</a></li>
 							<li role="presentation">
-								<a class="chart-ind" role="tab" data-toggle="tab">MACD</a></li>
+								<a class="chart-ind" role="tab" data-toggle="tab"
+								href="#MACD">MACD</a></li>
 						</ul>
 						<div *ngIf="showChartState == 'success'">
 							<stock-chart [data]="chartData"></stock-chart>

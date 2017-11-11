@@ -8,9 +8,11 @@ import 'rxjs/add/operator/map';
 export class SearchFavorService {
 	api : string;
 	params : URLSearchParams;
+	cache : {};
 	constructor(private  http: Http) {
-  		this.api = BACKEND_API + "search";
+  		this.api = BACKEND_API + "api/stock/data";
   		this.params = new URLSearchParams();
+  		this.cache = {};
 	}
 	searchFavorit(symbols : Array<any>){
 		return this.http.post(this.api, symbols).map(response => response.json());

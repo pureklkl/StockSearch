@@ -18,11 +18,15 @@ export class SymbolSearchService implements CanActivate {
 	
 	haveDetail : boolean;
 	searching : boolean;
+
+	dataCache: {};
+
 	constructor(private http: HttpClient,
 			    private router : Router) {
+		this.dataCache = {};
 		this.symbol = "";
 		//this.api = "https://www.alphavantage.co/query?";
-		this.api = BACKEND_API+ "search?";
+		this.api = BACKEND_API+ "api/stock/data?";
 		this.haveDetail = false;
 		this.searching = false;
 	}
@@ -42,14 +46,16 @@ export class SymbolSearchService implements CanActivate {
 	setAsscoiateFavor(component){
 		this.associateFavor = component;
 	}
+
 	triggerSearch(){
 		if(this.associateDetail != null){
-			this.associateDetail.searchNew();
+			this.associateDetail.getData();
 		}
 	}
 
 	reset(){
 		this.haveDetail = false;
+		this.dataCache = {};
 		if(this.curHttpReq!=null){
 			this.curHttpReq.unsubscribe();
 		}
@@ -57,6 +63,7 @@ export class SymbolSearchService implements CanActivate {
 			this.associateFavor.disableNavi();
 		}
 	}
+	
 	curHttpReq : any;
 	searchSymbol(symbol : string, func : string, num : number,
 		success: Function,
@@ -66,6 +73,12 @@ export class SymbolSearchService implements CanActivate {
 			error();
 			return;
 		}
+
+		if(this.dataCache[symbol+func+num]!=null){
+			success(this.dataCache[symbol+func+num]);
+			return;
+		}
+
 		let queryUrl = new URLSearchParams();
 		queryUrl.set('func', func);
 		queryUrl.set('symbol', symbol);
@@ -73,24 +86,6 @@ export class SymbolSearchService implements CanActivate {
 	
 		let req = new HttpRequest('GET', this.api+queryUrl.toString(), {reportProgress: true});
 		this.curHttpReq = this.http.request(req)
-			/*.map(event=>{
-				if(event instanceof HttpResponse){
-					if(Object.keys(event.body).length < 1){
-						throw Observable.throw(new Error("non-key"));
-					}
-				}
-				return event;
-			})
-			.retryWhen((error)=>{
-				return error.mergeMap(error=>{
-					console.log(error);
-					if(error.error.message == "non-key"){
-						return Observable.timer(5000);
-					} else {
-						return Observable.throw(error);
-					}
-				});
-			})*/
 			.subscribe(
 			event => {
 				switch (event.type) {
@@ -126,6 +121,7 @@ export class SymbolSearchService implements CanActivate {
 							event.body["Error Message"] = "empty object error";
 						}
 					}
+					this.dataCache[symbol+func+num] = event.body;
 					success(event.body);
 				}
 			},

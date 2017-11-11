@@ -8,9 +8,13 @@ class QueryApi {
 
 	query(params){
 		return axios.get(this.api, 
-			{params: params, transformResponse: 
-				(req) => {return req;}
+			{params: params,
+			 transformResponse: (req) => {return req;}
 			});
+	}
+
+	queryPost(params){
+		return axios.post(this.api, params);
 	}
 
 	queryJson(params){
