@@ -1,6 +1,6 @@
 /node_modules
 /frontend
 /log
-/src/config/setting.js
+/src/config/settings.js
 *.zip
 

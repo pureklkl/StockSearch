@@ -1,8 +1,0 @@
-{
-"api": "https://www.alphavantage.co/query?",
-"keyId": 0,
-"keys": ["I1MVB74HWHGOUD33", "3GHIN2L3QA0A30HV"],
-"rateLimit": 2000,
-"taskBase": "amqp://admin:pureklkl@54.200.107.160:5672",
-"mongodb": "mongodb://localhost:27017/"
-}
