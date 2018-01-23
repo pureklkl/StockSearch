@@ -1,19 +1,29 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { SymbolSearchService, 
-		 SymbolNewsService,
-		 ChartExportService } from '../../services/'
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/Rx';
+
+
+import {StoreService, RequestApiService } from '../../services/';
+import { STATE_DEF, ACTION_DEF, INDS, AsyncState } from '../../flux/stateDef';
+import { makeAction, makeIndAction, loadFavor, flipFavor } from '../../flux/actions';
 
 declare var $:any;
 declare var FB:any;
 
+const HALF_YEAR = 130;
+const TABLE_DATA = 2;
+const HIST_NUM = 1000;
+
+const SUCCESS = 'success';
+const PROGRESS = 'progress';
+const ERROR = 'error';
 @Component({
   moduleId: module.id.toString(),
   selector: 'stock-detail',
   templateUrl: './stockDetail.component.html',
   styleUrls: ['./stockDetail.component.css'],
 })
-export class StockDetail implements OnInit, AfterViewInit{
+export class StockDetail implements OnInit, AfterViewInit, OnDestroy{
 	static initState(){
 		return {tab: "table-chart", ind: 'Price'};
 	}
@@ -22,46 +32,168 @@ export class StockDetail implements OnInit, AfterViewInit{
 	static dataNum = 130;
 	static historyNum = 1000;
 
-	showTableState : string;
-	showChartState : string;
-	showStockChartState: string;
-	showStockNewsState: string;
+	showTableState : string = '';
+	showChartState : string = '';
+	showStockChartState: string = '';
+	showStockNewsState: string = '';
 
 	tableData : any;
 	chartData : any;
 	stockData : any;
 	newsData : any;
 
-	
-	constructor(private dataSource : SymbolSearchService, 
-				private newsSource : SymbolNewsService,
-				private chartExport : ChartExportService){
-		this.showTableState = '';
-		this.showChartState = '';
-		this.showStockChartState = '';
-		this.showStockNewsState = '';
-	}
+	unsubscribe:()=>void;
+	trigger: (any, {})=>void;
+	triggerInd: (any, string, {})=>void;
+	constructor(private store: StoreService,
+				private route: ActivatedRoute,
+				private apis: RequestApiService){
 
+		this.trigger = (type, payload)=>store.dispatch(makeAction(type, payload));
+		this.triggerInd = (type, ind, payload)=>store.dispatch(makeIndAction(type, ind, payload));
+
+		let state = this.store.getState();
+
+
+		this.unsubscribe = this.store.addListener((state): void=>{
+			let sym = state[STATE_DEF.DETAIL_SYM];
+			if(sym == null) {
+				return;
+			}
+			if(loadFavor(this.store)){
+				return;
+			}
+			let favSet = state[STATE_DEF.FAVOR_SET];
+			this.isFavor = favSet[sym] != null;
+			let tab = state[STATE_DEF.CURRENT_TAB];
+			if(tab == 'table-chart') {
+				//init table
+				let dataNum = TABLE_DATA;
+				let tableState = state[STATE_DEF.TABLE_AS];
+				if(tableState == AsyncState.init) {
+					//load half year data if shared with indicator chart
+					if(state[STATE_DEF.CHART[INDS._sharePrice]]) {
+						dataNum = HALF_YEAR;
+					}
+					this.trigger(ACTION_DEF.LOAD_TABLE, AsyncState.ongoing);
+					apis.searchStock(sym, 'Price', HALF_YEAR).subscribe(
+						result=>{
+							if(result['Error Message'] == null) {
+								this.trigger(ACTION_DEF.SET_TABLE, result);
+							} else {
+								this.trigger(ACTION_DEF.LOAD_TABLE, AsyncState.invalid);
+							}
+						},
+						err=>this.trigger(ACTION_DEF.LOAD_TABLE, AsyncState.failed));
+					return;
+				}
+				//init chart
+				let curInd = state[STATE_DEF.CURRENT_IND];
+				let chartState = state[STATE_DEF.CHART_AS][curInd];
+				if(chartState == AsyncState.init) {
+					$('#stockDetail-shareFB').prop('disabled', true);
+					this.triggerInd(ACTION_DEF.LOAD_CHART, curInd, AsyncState.ongoing);
+					apis.searchStock(sym, curInd, HALF_YEAR).subscribe(
+						result=>{
+							if(result['Error Message'] == null) {
+								this.triggerInd(ACTION_DEF.SET_CHART, curInd, result);
+							} else {
+								this.triggerInd(ACTION_DEF.LOAD_CHART, curInd, AsyncState.invalid);
+							}
+						},
+						err=>this.triggerInd(ACTION_DEF.LOAD_CHART, curInd, AsyncState.failed));
+					return;
+				}
+				this.buttonAvail();
+				this.stateToUI('showTableState', tableState, 'tableData', state[STATE_DEF.TABLE]);
+				this.stateToUI('showChartState', chartState, 'chartData', state[STATE_DEF.CHART][curInd]);
+			}
+			if(tab == 'stock-chart') {
+				let histState = state[STATE_DEF.HIST_AS];
+				if(histState == AsyncState.init) {
+					this.trigger(ACTION_DEF.LOAD_HIST, AsyncState.ongoing);
+					apis.searchStock(sym, INDS.PRICE, HIST_NUM).subscribe(
+						result=>{
+							if(result['Error Message'] == null) {
+								this.trigger(ACTION_DEF.SET_HIST, result);
+							} else {
+								this.trigger(ACTION_DEF.LOAD_HIST, AsyncState.invalid);
+							}
+						},
+						err=>this.trigger(ACTION_DEF.LOAD_HIST, AsyncState.failed));
+					return;
+				}
+				this.stateToUI('showStockChartState', histState, 'stockData', state[STATE_DEF.HIST]);
+			}
+			if(tab == 'stock-news') {
+				let newsState = state[STATE_DEF.NEWS_AS];
+				if(newsState == AsyncState.init) {
+					this.trigger(ACTION_DEF.LOAD_NEWS, AsyncState.ongoing);
+					apis.searchNews(sym).subscribe(
+							result=>this.trigger(ACTION_DEF.SET_NEWS, result),
+							err=>this.trigger(ACTION_DEF.LOAD_NEWS, AsyncState.failed));
+					return;
+				}
+				this.stateToUI('showStockNewsState', newsState, 'newsData', state[STATE_DEF.NEWS]);
+			}
+			this.showInfoTab();
+		})
+	}
+	
+	stateToUI(ui: string, state: string, data:string, stateData) {
+		switch (state) {
+			case AsyncState.success:
+				this[ui] = SUCCESS;
+				this[data] = stateData;
+				break;
+			case AsyncState.ongoing:
+				this[ui] = PROGRESS;
+				break;
+			default:
+				this[ui] = ERROR;
+				break;
+		}
+	}
+	paramSub: Subscription
 	ngOnInit() {
-		this.favSet = JSON.parse(localStorage.getItem("favSet")) || {};
-		this.isFavor = this.favSet[this.dataSource.symbol] != null;
-		this.dataSource.setAssociateDetail(this);
-		$('#stockDetail-favorite').prop('disabled', true);
-		$('#stockDetail-shareFB').prop('disabled', true);
-		this.getData();
+		this.paramSub = this.route.params.subscribe(params=>{
+			let state = this.store.getState();
+			if(state[STATE_DEF.DETAIL_SYM] != params['sym']) {
+				if(state[STATE_DEF.CURRENT_IND] == INDS.PRICE) {
+					this.trigger(ACTION_DEF.SHARE_PRICE, true);
+				} else {
+					this.trigger(ACTION_DEF.SHARE_PRICE, false);
+				}
+				this.trigger(ACTION_DEF.SET_DETAIL_SYM, params['sym']);
+			} else {
+				this.trigger('load cached detail', {});
+			}
+		});
 	}
 
 	ngAfterViewInit(){
+
+		$('#stockDetail-favorite').prop('disabled', true);
+		$('#stockDetail-shareFB').prop('disabled', true);
 		$('a.chart-ind').on('click', this.onIndTabChange.bind(this));
 		$('a.info-ind').on('click', this.onInfoTabChange.bind(this));
 		this.showInfoTab();
+		this.buttonAvail();
+	}
+
+	ngOnDestroy(){
+		this.paramSub.unsubscribe();
+		this.unsubscribe();
 	}
 
 	showInfoTab(){
-		switch (StockDetail.stateStore.tab) {
+		let state = this.store.getState();
+		let tab = state[STATE_DEF.CURRENT_TAB];
+		let ind = state[STATE_DEF.CURRENT_IND];
+		switch (tab) {
 			case "table-chart":
 				$('#stockDetail-navInfo li a[href="#current-stock"]').tab('show');
-				$('#stockDetail-navInd li a[href="#'+StockDetail.stateStore.ind+'"]').tab('show');
+				$('#stockDetail-navInd li a[href="#'+ind+'"]').tab('show');
 				break;
 			case "stock-chart":
 				$('#stockDetail-navInfo li a[href="#historical-charts"]').tab('show');
@@ -74,39 +206,41 @@ export class StockDetail implements OnInit, AfterViewInit{
 		}
 	}
 
+	buttonAvail(){
+		let state = this.store.getState()
+		let curInd = state[STATE_DEF.CURRENT_IND];
+		if(state[STATE_DEF.TABLE_AS] == AsyncState.success) {
+			$('#stockDetail-favorite').prop('disabled', false);
+		}
+		if(state[STATE_DEF.CHART_AS][curInd] == AsyncState.success) {
+			$('#stockDetail-shareFB').prop('disabled', false);
+		}
+	}
+
 	onIndTabChange(e): void {
 		$('#stockDetail-shareFB').prop('disabled', true);
-		var func = $(e.currentTarget).text(); // activated tab
-		StockDetail.stateStore.ind = func;
-		this.searchInd();
+		var ind = $(e.currentTarget).text(); 
+		this.trigger( ACTION_DEF.SET_IND, ind);
 	}
 
 	onInfoTabChange(e) : void{
 		$('#stockDetail-navInd li a[href="#'+StockDetail.stateStore.ind+'"]').tab('show');
-		let type = $(e.currentTarget).attr('id');
-		StockDetail.stateStore.tab = type;
-		this.getData();
+		let tab = $(e.currentTarget).attr('id');
+		this.trigger(ACTION_DEF.SET_TAB, tab);
 	}
 
 	isFavor : boolean;
 	favSet : {};
 	onFlipFavor(){
-		if(this.isFavor){
-			delete this.favSet[this.dataSource.symbol];
-		} else {
-			this.favSet[this.dataSource.symbol] = 
-			{
-				symbol : this.dataSource.symbol,
-				addTime : (new Date()).getTime()
-			}
-		}
-		localStorage.setItem("favSet", JSON.stringify(this.favSet));
-		this.isFavor = !this.isFavor;
+		let state = this.store.getState();
+		let sym = state[STATE_DEF.DETAIL_SYM];
+		flipFavor(sym, this.apis, this.store);
 	}
 
 	shareOnFB(event){
 		event.preventDefault();
-		this.chartExport.chartExport().subscribe(data=>{
+		let chartData = this.store.getState()[STATE_DEF.CHART_OPTION];
+		this.apis.getChartImg(chartData).subscribe(data=>{
 			console.log('http://export.highcharts.com/'+data._body);
 			FB.ui({
 				method: 'feed',
@@ -117,182 +251,5 @@ export class StockDetail implements OnInit, AfterViewInit{
 			});
 		})
 
-	}
-
-	getData(): void{
-		switch (StockDetail.stateStore.tab) {
-			case "table-chart":
-				if(StockDetail.stateStore.ind == 'Price'){
-					this.searchDetail();
-				} else {
-					this.searchTable();
-					this.searchInd();
-				}
-				break;
-			case "stock-chart":
-				this.searchHistory();
-				break;
-			case "stock-news":
-				this.searchNews();
-				break;
-		}
-	}
-
-	searchDetail() : void{
-		this.showTableState = 'progress';
-		this.showChartState = 'progress';
-		this.dataSource.searchSymbol(
-			this.dataSource.symbol, 
-			'TIME_SERIES_DAILY_ADJUSTED', 
-			StockDetail.dataNum,
-			this.onDetailSuccess.bind(this),
-			this.onDetailProgress.bind(this, true),
-			this.onDetailError.bind(this, true));
-	}
-
-	searchTable(): void{
-		this.showTableState = 'progress';
-		this.dataSource.searchSymbol(
-			this.dataSource.symbol, 
-			'TIME_SERIES_DAILY_ADJUSTED', 
-			StockDetail.dataNum,
-			this.onTableSuccess.bind(this),
-			this.onTableProgress.bind(this, true),
-			this.onTableError.bind(this, true));
-	}
-
-	searchInd(): void{
-		let func = StockDetail.stateStore.ind
-		if(func == "Price"){
-		  	func = 'TIME_SERIES_DAILY_ADJUSTED';
-		}
-		console.log("searchInd " + func);
-		this.showChartState = 'progress';
-		this.dataSource.searchSymbol(
-			this.dataSource.symbol, 
-			func, 
-			StockDetail.dataNum,
-			this.onChartSuccess.bind(this),
-			this.onChartProgress.bind(this),
-			this.onChartError.bind(this));
-	}
-
-	searchHistory(): void{
-		this.showStockChartState = 'progress';
-		this.dataSource.searchSymbol(
-			this.dataSource.symbol, 
-			'TIME_SERIES_DAILY_ADJUSTED', 
-			StockDetail.historyNum,
-			this.onStockSuccess.bind(this),
-			this.onStockProgress.bind(this),
-			this.onStockError.bind(this));
-	}
-
-	searchNews(): void{
-		this.showStockNewsState = 'progress';
-		this.newsSource.searchSymbol(
-			this.dataSource.symbol,
-			this.onNewsSuccess.bind(this),
-			this.onNewsProgress.bind(this),
-			this.onNewsError.bind(this));
-	}
-
-	onDetailSuccess(data){
-		if(data != null && data["Error Message"] == null){
-			$('#stockDetail-favorite').prop('disabled', false);
-			$('#stockDetail-shareFB').prop('disabled', false);
-			this.showTableState = "success";
-			this.tableData = data;
-			this.showChartState = 'success';
-			data.chartId = "stock-ind-chart";
-			this.chartData = data;
-		} else if(data["Error Message"] != null){
-			this.showTableState = 'error';
-			this.onChartError();
-		}
-	}
-	onDetailProgress(data){
-		this.showTableState = 'progress';
-		(<any>$('.progress-bar')).attr("aria-valuenow", String(data)).css("width", String(data)+'%')
-		this.showChartState = 'progress';
-		(<any>$('#chart-progress')).attr("aria-valuenow", String(data)).css("width", String(data)+'%');
-	}
-	onDetailError(data){
-		this.showTableState = 'error';
-		this.showChartState = 'error';
-	}
-
-	onTableSuccess(data){
-		if(data != null && data["Error Message"] == null){
-			$('#stockDetail-favorite').prop('disabled', false);
-			$('#stockDetail-shareFB').prop('disabled', false);
-			this.showTableState = "success";
-			this.tableData = data;
-		} else if(data["Error Message"] != null){
-			this.showTableState = 'error';
-		}
-	}
-
-	onTableProgress(data) {
-		this.showTableState = 'progress';
-		(<any>$('.progress-bar')).attr("aria-valuenow", String(data)).css("width", String(data)+'%')
-	}
-
-	onTableError(){
-		this.showTableState = 'error';
-	}
-
-	onChartSuccess(data){
-		if(data != null && data["Error Message"] == null){
-			$('#stockDetail-favorite').prop('disabled', false);
-			$('#stockDetail-shareFB').prop('disabled', false);
-			this.showChartState = 'success';
-			data.chartId = "stock-ind-chart";
-			this.chartData = data;
-		} else if(data["Error Message"] != null){
-			this.onChartError();
-		}
-	}
-
-	onChartProgress(isProgressTable=false, data) {
-		this.showChartState = 'progress';
-		(<any>$('#chart-progress')).attr("aria-valuenow", String(data)).css("width", String(data)+'%');
-	}
-
-	onChartError(isErrorTable=false){
-		this.showChartState = 'error';
-	}
-
-	onStockSuccess(data){
-		if(data != null && data["Error Message"] == null){
-			data.chartId = "stock-price-chart";
-			this.showStockChartState = 'success';
-			this.stockData = data;
-		} else {
-			this.onStockError();
-		}
-	}
-	onStockProgress(data){
-		this.showStockChartState = 'progress';
-		(<any>$('#stock-progress')).attr("aria-valuenow", String(data)).css("width", String(data)+'%');
-	}
-	onStockError(){
-		this.showStockChartState = 'error';
-	}
-
-	onNewsSuccess(data){
-		if(!(data instanceof Array) || data.length==null){
-			this.showStockNewsState = 'error';
-			return;
-		}
-		this.showStockNewsState = 'success';
-		this.newsData = data;
-	}
-	onNewsProgress(data){
-		this.showStockNewsState = 'progress';
-		(<any>$('#news-progress')).attr("aria-valuenow", String(data)).css("width", String(data)+'%');
-	}
-	onNewsError(data){
-		this.showStockNewsState = 'error';
 	}
 }

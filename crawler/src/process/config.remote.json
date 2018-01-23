@@ -1,0 +1,9 @@
+{
+"_test":"https://www.alphavantage.co/query?apikey=I1MVB74HWHGOUD33&series_type=close&time_period=30&interval=daily",
+"api": "https://www.alphavantage.co/query?",
+"keyId": 2,
+"keys": ["I1MVB74HWHGOUD33", "3GHIN2L3QA0A30HV","GJXYL3BZK46FOSK4"],
+"rateLimit": 2000,
+"taskBase": "amqp://admin:pureklkl@172.31.21.4",
+"mongodb": "mongodb://admin:pureklkl@172.31.25.81/mydb"
+}

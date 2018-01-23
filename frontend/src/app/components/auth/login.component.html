@@ -1,0 +1,48 @@
+<ul id = "auth-dialog" class="nav nav-tabs" role="tablist">
+  <li role="presentation">
+	<a href="#register" aria-controls="register" role="tab" data-toggle="tab">
+	Register</a></li>
+  <li role="presentation">
+	<a href="#login" aria-controls="login" role="tab" data-toggle="tab">
+	Login</a></li>
+</ul>
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane" id="register">
+	  <form id="register-form">
+	    <div class="form-group">
+	      <label for="register-username">Username</label>
+	      <input type="text" class="form-control" id="register-username" name="username" placeholder="Username">
+	    </div>
+	    <div class="form-group">
+	      <label for="register-password">Password</label>
+	      <input type="password" class="form-control" id="register-password" name="password" placeholder="Password">
+	    </div>
+	    <div class="form-group">
+	      <label for="register-password-repeat">Repeat Password</label>
+	      <input type="password" class="form-control" id="register-password-repeat" name="password2" placeholder="Password Again">
+	    </div>
+	    <div><label style="font-weight: unset;">{{regInfo}}</label>
+	    </div>
+	    <button id = "diag-register-btn" type="submit" class="btn btn-success">register</button>
+	    <button class="btn btn-default" mat-button [mat-dialog-close] = "'register-canceled'">
+	    Cancel</button>
+	  </form>
+  </div>
+  <div role="tabpanel" class="tab-pane" id="login">
+	  <form id="login-form">
+	    <div class="form-group">
+	      <label for="login-username">Username</label>
+	      <input type="text" class="form-control" id="login-username" name="username" placeholder="username">
+	    </div>
+	    <div class="form-group">
+	      <label for="login-password">Password</label>
+	      <input type="password" class="form-control" id="login-password" name="password" placeholder="Password">
+	    </div>
+	    <div><label style="font-weight: unset;">{{loginInfo}}</label>
+	    </div>
+	    <button id = "diag-login-btn" type="submit" class="btn btn-primary">Login</button>
+	    <button class="btn btn-default" mat-button [mat-dialog-close] = "'login-canceled'">
+	    Cancel</button>
+	  </form>
+  </div>
+</div>

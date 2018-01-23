@@ -1,48 +1,44 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule }   from '@angular/common';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatAutocompleteModule } from '@angular/material';
+import { MatAutocompleteModule, MatDialogModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule, routedComponents } from './app-routing.module';
-import { AppSearch, StockInfo, StockChart, StockNews } from './components/'
+import { AppSearch, NavBar, Login } from './components/'
 
 
 import { HttpModule }    from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
-import {  AutoCompleteService, 
-		  SymbolSearchService, 
-		  SymbolNewsService,
-		  SearchFavorService,
-		  ChartExportService } from './services/'
+import {  RequestApiService, StoreService } from './services/'
 
 
 @NgModule({
   declarations: [
     AppComponent,
     AppSearch,
-    StockInfo,
-    StockChart,
-    StockNews,
+    NavBar,
+    Login,
     routedComponents
   ],
   imports: [
-    AppRoutingModule,
+  	CommonModule,
     BrowserAnimationsModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
+    MatDialogModule,
     HttpModule,
-    HttpClientModule
+    HttpClientModule,
+
+    AppRoutingModule
   ],
-  providers: [AutoCompleteService, 
-  				SymbolSearchService, 
-  				SymbolNewsService, 
-  				SearchFavorService,
-  				ChartExportService],
+  providers: [ RequestApiService, StoreService ],
+  entryComponents: [Login],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

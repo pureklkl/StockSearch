@@ -1,0 +1,7 @@
+#auth-dialog li:not(.active) a:focus, a:active {
+   
+   background-color: transparent !important;
+}
+a:focus, a:active {
+	outline: none !important;
+}

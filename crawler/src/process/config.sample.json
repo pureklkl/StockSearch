@@ -1,0 +1,9 @@
+{
+"_test":"https://www.alphavantage.co/query?apikey=I1MVB74HWHGOUD33&series_type=close&time_period=30&interval=daily",
+"api": "https://www.alphavantage.co/query?",
+"keyId": 2,
+"keys": ["alphavantage key 0", "alphavantage key 1","alphavantage key 2"],
+"rateLimit": 2000,
+"taskBase": "your rabbitmq connection string",
+"mongodb": "your mongodb connection string"
+}

@@ -1,1 +1,1 @@
-export * from './stockDetail.component';
+export * from './stockDetail.module';

@@ -1,0 +1,1 @@
+::1 - - [23/Jan/2018:05:29:54 +0000] "POST /api/stock/data? HTTP/1.1" 200 2 "http://localhost:3000/favorite" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"

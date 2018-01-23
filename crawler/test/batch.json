@@ -1,0 +1,27 @@
+{
+    "Meta Data": {
+        "1. Information": "Batch Stock Market Quotes",
+        "2. Notes": "IEX Real-Time Price provided for free by IEX (https://iextrading.com/developer/).",
+        "3. Time Zone": "US/Eastern"
+    },
+    "Stock Quotes": [
+        {
+            "1. symbol": "MSFT",
+            "2. price": "89.9300",
+            "3. volume": "35617880",
+            "4. timestamp": "2018-01-19 16:15:02"
+        },
+        {
+            "1. symbol": "FB",
+            "2. price": "181.2850",
+            "3. volume": "26579092",
+            "4. timestamp": "2018-01-19 16:00:00"
+        },
+        {
+            "1. symbol": "AAPL",
+            "2. price": "178.4500",
+            "3. volume": "31312417",
+            "4. timestamp": "2018-01-19 16:00:00"
+        }
+    ]
+}

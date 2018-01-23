@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+ <div class="panel panel-default">
 	<div class="panel-heading" style="position: relative;">
 		<button type="button" class="btn btn-default" style="position: absolute;left: 5px">
 			<a routerLink= "/favorite">
@@ -49,8 +49,7 @@
 						
 						<ng-template [ngIf]="showTableState === 'success'">
 							<div style="height: 85%">
-								<stock-info [data] = "tableData">
-								</stock-info>
+								<stock-info [data] = "tableData"></stock-info>
 							</div>
 						</ng-template>
 						
@@ -96,8 +95,7 @@
 								href="#MACD">MACD</a></li>
 						</ul>
 						<div *ngIf="showChartState == 'success'">
-							<stock-chart [data]="chartData"></stock-chart>
-							<div id = "stock-ind-chart"></div>
+							<div id = "stock-ind-chart" stock-chart [data]="chartData"></div>
 						</div>
 						<div *ngIf="showChartState == 'progress'">
 							<div class="progress">
@@ -112,8 +110,7 @@
 			</div>
 			<div role="tabpanel" class="tab-pane fade" id="historical-charts">
 				<ng-template [ngIf]="showStockChartState === 'success'">
-					<stock-chart [stockData]="stockData"></stock-chart>
-					<div id = "stock-price-chart"></div>
+					<div id = "stock-price-chart" stock-chart [stockData]="stockData"></div>
 				</ng-template>
 				<ng-template [ngIf]="showStockChartState === 'progress'">
 					<div class="progress">

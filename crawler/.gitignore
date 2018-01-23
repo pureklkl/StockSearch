@@ -1,0 +1,8 @@
+/node_modules
+/log
+/src/process/config/config.json
+/src/process/config/config.local.json
+/src/process/config/config.remote.json
+/src/process/config/*.csv
+*.zip
+

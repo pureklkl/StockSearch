@@ -1,165 +1,150 @@
-import { AfterViewInit, Component, OnInit, ApplicationRef } from '@angular/core';
-import { trigger,state,style,transition,animate,keyframes } from '@angular/animations';
-import { SearchFavorService, SymbolSearchService } from '../../services/';
+import { AfterViewInit, Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import {Router} from "@angular/router";
 import {Observable, Subscription} from 'rxjs/Rx';
 
+import { StoreService, RequestApiService } from '../../services/';
+import { STATE_DEF, ACTION_DEF, AsyncState } from '../../flux/stateDef';
+import { makeAction, loadFavor, flipFavor, sortFavor, setFavorArray } from '../../flux/actions';
+
 declare var $:any;
+
+const INIT = 'init';
+const SUCCESS = 'success';
+const PROGRESS = 'progress';
+const ERROR = 'error';
 
 @Component({
   moduleId: module.id.toString(),
   selector: 'favorite',
   templateUrl: './favorite.component.html',
-  styleUrls: ['./favorite.component.css'],
+  styleUrls: ['./favorite.component.css', '../../utils/spin.css'],
 })
-export class Favorite implements OnInit, AfterViewInit{
-	constructor(private dataSource : SearchFavorService,
-			    private symbolDetailSource : SymbolSearchService,
-			    private router : Router,
-			    private appRef : ApplicationRef){
-		
-	}
-	favSet:{};
-	favArray : Array<any>;
-	stCmp : Function;
-	favArrayShow : Array<any>;
-	onDownLoad : number;
-	ngOnInit(){
-		this.favSet = JSON.parse(localStorage.getItem('favSet'));
-		this.onDownLoad = 0;
-		this.order = 1;
-		this.sortField = 'addTime';
-		this.symbolDetailSource.setAsscoiateFavor(this);
-		if(!this.symbolDetailSource.haveDetail){
-			$('.goDetail').prop('disabled', true);
-		}
-		this.favArray = [];
-		this.downloadSt();
-	}
-	downloadSt(){
-		let symbols = [];
-		for(let key in this.favSet){
-			symbols.push(key);
-		}
-		this.dataSource.searchFavorit(symbols).subscribe((value)=>{
-			this.showFavor(value);
-		});
-	}
-
-	showFavor(value) {
-		if(value==null||value.length==null){
-			return;
-		}
-		let favArray = [];
-		for(let stock of value){
-			if(stock["Meta Data"] != null){
-				let symbol = stock["Meta Data"]["2. Symbol"];
-				let date = Object.keys(stock["Time Series (Daily)"])[0];
-				let info = stock["Time Series (Daily)"][date];
-				if(this.favSet[symbol] != null){
-					let stInfo = {};
-					stInfo['addTime'] = this.favSet[symbol]['addTime'];
-					stInfo['Symbol'] = symbol;
-					stInfo['Price'] = +info["5. adjusted close"];
-					stInfo['Change'] = stInfo['Price'] - (+info["1. open"]);
-					stInfo['Change Percent'] = (stInfo['Change']) / (+info["1. open"]);
-					stInfo['Volume'] = +info["6. volume"];
-					stInfo['VolumeStr'] = parseInt(info["6. volume"]).toLocaleString("en", {useGrouping:true});
-					stInfo['addTime'] = this.favSet[symbol]['addTime'];
-					favArray.push(stInfo);
-				}
-			} else {
-				this.downloadSt();
-				return;
-			}
-		}
-		favArray.sort(this.sortByField.bind(this));
-		this.favArray = favArray;
-		this.appRef.tick();
-	}
-
-	disableNavi(){
-		$('.goDetail').prop('disabled', true);
-	}
+export class Favorite implements OnInit, AfterViewInit, OnDestroy{
 
 	interval : Subscription;
-	autoRefresh(e){
-		console.log(e);
-		if(e.target.checked){
-			this.interval = Observable.interval(5000).subscribe(this.downloadSt.bind(this));
-		} else {
-			if(this.interval != null){
+	favArray : Array<any>;
+	unsubscribe: ()=>void;
+	trigger: (any, {})=>void;
+	favorLoading: string = INIT;
+	constructor(private store: StoreService,
+			 	private apis: RequestApiService,
+			    private router : Router,
+			    private app: ChangeDetectorRef){
+		this.trigger = (type, payload)=>this.store.dispatch(makeAction(type, payload));
+		this.unsubscribe = this.store.addListener((state)=>{
+			if(loadFavor(this.store)){
+				return;
+			}
+			switch (state[STATE_DEF.FAVOR_ARRAY_AS]) {
+				case AsyncState.init:
+					if(state[STATE_DEF.FAVOR_SET_AS] == AsyncState.success) {
+						this.downloadSt();
+						return;
+					}
+					break;
+				case AsyncState.ongoing:
+					this.favorLoading = PROGRESS;
+					app.detectChanges();
+					break;
+				case AsyncState.success:
+					this.favorLoading = SUCCESS;
+					this.favArray = state[STATE_DEF.FAVOR_ARRAY];
+					app.detectChanges();
+					break;
+				case AsyncState.failed:
+				case AsyncState.invalid:
+					this.favorLoading = ERROR;
+					app.detectChanges();
+					break;
+				default:
+					break;
+			}
+			if(state[STATE_DEF.AUTO] && (this.interval == null || this.interval.closed)) {
+				this.interval = Observable.interval(5000).subscribe(this.downloadSt.bind(this));
+			} else if(!state[STATE_DEF.AUTO] && (this.interval != null && !this.interval.closed)) {
 				this.interval.unsubscribe();
 			}
-		}
-	}
-	refresh(){
-		this.downloadSt();
-	}
-	setSortField(e){
-		console.log(e);
-		this.sortField = $(e.target).val();
-		if(this.sortField == 'Default'){
-			this.sortField = 'addTime';
-			this.order = 1;
-			$('#dropdownMenu2').selectpicker('val', 'Ascending');
-			$('#dropdownMenu2').prop('disabled', true);
-			$('#dropdownMenu2').selectpicker('refresh');
-		} else {
-			$('#dropdownMenu2').prop('disabled', false);
-			$('#dropdownMenu2').selectpicker('refresh');
-		}
-		this.favArray.sort(this.sortByField.bind(this));
-	}
-	setSortOrder(e){
-		if($(e.target).val()=="Ascending"){
-			this.order = 1;
-		} else {
-			this.order = -1;
-		}
-		this.favArray.sort(this.sortByField.bind(this));
-	}
-	naviFavor(e) {
-		let symbol = $(e.target).text();
-		this.symbolDetailSource.symbol = symbol;
-		this.symbolDetailSource.searching = true;
-		this.router.navigateByUrl('stock-detail');
-	}
-	deleteFavor(e){
-		let symbol = $(e.currentTarget).attr('stsymbol');
-		console.log(symbol);
-		delete this.favSet[symbol];
-		this.favArray = this.favArray.filter(stock=>{
-			return this.favSet[stock.Symbol] != null;
-		});
-		localStorage.setItem("favSet", JSON.stringify(this.favSet));
-	}
 
+			$('.goDetail').prop('disabled', state[STATE_DEF.DETAIL_SYM]==null);
+			$('#auto-refresh').prop('checked', state[STATE_DEF.AUTO]);
+
+		});
+	}
+	
+	ngOnInit(){
+		this.store.dispatch({type: 'favor init'});
+	}
+	
 	ngAfterViewInit() {
 	 	(<any>$('#auto-refresh')).bootstrapToggle();
-	 	console.log('set');
+	 	//use native selector on mobile
 	 	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
     		$('.selectpicker').selectpicker('mobile');
 		} else {
 			$('.selectpicker').selectpicker();
 		}
+	 	//programmatically update ui after disable
+	 	//$('#dropdownMenu2').selectpicker('refresh');
+	 	//event...
 	 	$('#dropdownMenu1').on('changed.bs.select', this.setSortField.bind(this));
 	 	$('#dropdownMenu2').on('changed.bs.select', this.setSortOrder.bind(this));
-	 	$('#auto-refresh').change((e)=>{
-	 		this.autoRefresh(e);
-	 	});
-	 	$('#dropdownMenu2').prop('disabled', true);
-	 	$('#dropdownMenu2').selectpicker('refresh');
+	 	$('#auto-refresh').change(this.autoRefresh.bind(this));
 	}
-
-	sortByField(st1, st2){
-		if(typeof st1[this.sortField] === "string"){
-			return st1[this.sortField].localeCompare(st2[this.sortField]) * this.order;
+	
+	ngOnDestroy(){
+		if(this.interval != null){
+			this.interval.unsubscribe();
 		}
-		return this.order * (st1[this.sortField] - st2[this.sortField]);
+		this.unsubscribe();
 	}
 
-	order : number;
-	sortField : string;
+	downloadSt(){
+		let favors = this.store.getState()[STATE_DEF.FAVOR_SET];
+		this.trigger(ACTION_DEF.LOAD_FAVOR_ARRAY, AsyncState.ongoing);
+		this.apis.searchStockList(Object.keys(favors)).subscribe(
+				(result)=>{
+					if(result != null) {
+						console.log(result);
+						this.store.dispatch(setFavorArray(result, favors));
+					} else {
+						this.trigger(ACTION_DEF.LOAD_FAVOR_ARRAY, AsyncState.failed);
+					}
+				},
+				(err)=> this.trigger(ACTION_DEF.LOAD_FAVOR_ARRAY, AsyncState.failed)
+			);
+	}
 
+	autoRefresh(e){
+		this.trigger(ACTION_DEF.SET_AUTO, {});
+	}
+
+	refresh(){
+		this.downloadSt();
+	}
+	
+	setSortField(e){
+		let sortField = $(e.target).val();
+		this.store.dispatch(sortFavor(sortField, this.store.getState()[STATE_DEF.FAVOR_ARRAY_ORDER]));
+	}
+	setSortOrder(e){
+		let order = +$(e.target).val();
+		this.trigger(ACTION_DEF.REVERSE_FAVOR_ARRAY, {});
+	}
+
+	deleteFavor(e){
+		let symbol = $(e.currentTarget).attr('stsymbol');
+		flipFavor(symbol, this.apis, this.store);
+	}
+	
+	goDetail(){
+		let symbol = this.store.getState()[STATE_DEF.DETAIL_SYM];
+		if(symbol != null){
+			this.router.navigateByUrl('stock-detail/' + symbol);
+		}
+	}
+
+	naviFavor(e) {
+		let symbol = $(e.target).text();
+		this.router.navigateByUrl('stock-detail/'+symbol);
+	}
 }

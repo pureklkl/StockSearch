@@ -5,7 +5,7 @@
 ::ng-deep .nav-link{
 	border-bottom: 0px !important;
 }
-
+/*necessay for animation to work*/
 :host {display: block;}
 
 .nav-tabs>li>a:hover {

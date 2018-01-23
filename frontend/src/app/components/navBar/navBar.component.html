@@ -1,0 +1,19 @@
+<nav class="navbar navbar-default" style="border-radius: 0px">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Stock Search</a>
+		</div>
+		<form class = "navbar-form navbar-right" [ngSwitch]="loginState">
+			<ng-template ngSwitchCase="no">
+				<button class="btn btn-success" (click)="register()">Register</button>
+				<button class="btn btn-default" (click)="login()">&nbsp;Login&nbsp;&nbsp;</button>
+			</ng-template>
+			<ng-template ngSwitchCase="yes">
+				<a href="">{{username}}</a>
+				<button class="btn btn-default" (click)="logout()">logout</button>
+			</ng-template>
+			<ng-template ngSwitchCase="ongoing">login...</ng-template>
+			<ng-template ngSwitchDefault>error</ng-template>
+		</form>
+	</div>
+</nav>

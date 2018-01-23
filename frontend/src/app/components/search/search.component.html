@@ -12,8 +12,9 @@
 					[formControl]="stateCtrl" [matAutocomplete]="auto"
 					aria-describedby="helpBlock" placeholder="e.g. AAPL">
 				</div>
+				<div *ngIf="isHinting" class = 'loader loader-sm' style="position: absolute;right: 5%;top: 15%;"></div>
 				<mat-autocomplete #auto="matAutocomplete">
-			      	<mat-option *ngFor="let stock of autoStockInfo | async" [value]="stock.Symbol">
+			      	<mat-option *ngFor="let stock of autoStockInfo" [value]="stock.Symbol">
 			        	<span>{{ stock.Symbol }} - {{stock.Name}} ({{stock.Exchange}})</span>
 	      			</mat-option>
 	    		</mat-autocomplete>

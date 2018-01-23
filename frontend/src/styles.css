@@ -13,3 +13,8 @@ button > a {
 button > a:hover {
 	cursor: inherit;
 }
+
+label.error {
+	font-weight: normal;
+	color: red;
+}

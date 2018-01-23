@@ -6,7 +6,7 @@
 				<span class="glyphicon glyphicon-refresh" aria-hidden="true" (click)="refresh()"></span>
 			</button>
 			<button type="button" class="btn goDetail">
-				<a class = "goDetail" routerLink= "/stock-detail">
+				<a class = "goDetail" (click)="goDetail()">
 					<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
 				</a>
 			</button>
@@ -16,14 +16,14 @@
 		</div>
 
 	</div>
-	<div class="panel-body">
+	<div class="panel-body" style="min-height: 150px">
 		<div class="row" style="padding-bottom: 10px;text-align: left;padding-left: 10px">
 			<div class="col-sm-1 col-xs-12 vcenter">
 				<label><span style="font-weight: bold">Sort By</span></label>
 			</div>
 			<div class="col-sm-2 col-xs-12 vcenter">
 				<select class="selectpicker" data-width="100%"   id="dropdownMenu1">
-				  <option value="Default">Default</option>
+				  <option value="addTime">Default</option>
 				  <option value="Symbol">Symbol</option>
 				  <option value="Price">Price</option>
 				  <option value="Change">Change</option>
@@ -36,10 +36,17 @@
 			</div>
 			<div class="col-sm-2 col-xs-12 vcenter">
 				<select class="selectpicker" data-width="100%"   id="dropdownMenu2">
-					<option value="Ascending">Ascending</option>
-					<option value="Descending">Descending</option>
+					<option value="1">Ascending</option>
+					<option value="-1">Descending</option>
 				</select>
 		   	</div>
+		</div>
+		<div *ngIf="favorLoading=='error'" class="alert alert-danger" role="alert">
+			fail to get stock info
+		</div>
+		<!--*ngIf="favorLoading=='progress'"-->
+		<div  class = 'loader loader-md'  *ngIf="favorLoading=='progress'"
+			style="position: absolute;top:65%;right: 50%;">
 		</div>
 		<table class="table table-striped">
 			<tr>
