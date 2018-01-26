@@ -49,9 +49,13 @@ function indToColl(ind) {
 	}
 	return colls[ind];
 }
-function storeOne(ind, id, newData) {
+function storeOne(ind, id, newData, compress = true) {
 	var coll = indToColl(ind);
-	newData = parser.compressMeta(newData);
+	//logger.verbose("store one before %s %O", id, newData);
+	if(compress) {
+		newData = parser.compressMeta(newData);
+	}
+	//logger.verbose("store one %s %O", id, newData);
 	return coll.updateOne({_id: id}, {$set: newData}, {upsert : true}).then(
 			res=>res,
 			err=>{
@@ -158,7 +162,7 @@ function updateBatch(data) {
 	data = parser.parseBatch(data);
 	let all = [];
 	for(let sym in data){
-		all.push(storeOne('Price', sym, getNestedOp(data[sym], 'values')));
+		all.push(storeOne('Price', sym, getNestedOp(data[sym], 'values'), false));
 	}
 	return Promise.all(all);
 }

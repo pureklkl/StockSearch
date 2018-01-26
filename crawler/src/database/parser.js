@@ -12,6 +12,7 @@ const MINU = 'min';
 
 const BATCH_IND = "Stock Quotes";
 const ERROR_MSG = "Error Message";
+const ERROR_MSG2 = "Information";
 const META_DATA = "Meta Data";
 const Last_Refreshed = "Last Refreshed";
 const TIME_SERIES = "Time Series";
@@ -34,14 +35,14 @@ function parseResult (data) {
 	}
 	let res = {};
 	for(let key in data){
-		if(key != META_DATA && key != ERROR_MSG) {
+		if(key == ERROR_MSG || key == ERROR_MSG2) {
+			throw data[key];
+		} else 	if(key != META_DATA) {
 			let idEnd = key.substring(0, 11) == TIME_SERIES ? DAY : MONTH; 
 			res.ind = key;
 			res.newData = parseAll(data, date_part_pos[DAY], date_part_pos[idEnd][1], key);
 			return res;
-		} else if(key == ERROR_MSG) {
-			throw data[ERROR_MSG];
-		}
+		} 
 	}
 	throw 'invalid object:\n' + JSON.stringify(data);
 }

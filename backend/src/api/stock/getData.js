@@ -56,9 +56,9 @@ const ENTRY_KEY_REVERSE = {
 		2:"Real Upper Band",
 		3:"Real Lower Band"
 	},
-	CCI:{CCI:1},
+	CCI:{1:'CCI'},
 	MACD:{
-		1:'MACH_HIST',
+		1:'MACD_Hist',
 		2:'MACD',
 		3:'MACD_Signal'
 	},

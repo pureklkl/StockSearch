@@ -107,7 +107,6 @@ function checkAndUpate(ind, sym, res, metaRes) {
 		let cur = data.newData[0][parser.META_DATA][parser.Last_Refreshed];
 		let newEnd = data.newData[data.newData.length-1][parser.META_DATA][parser.Last_Refreshed];
 		retry = shouldUpdateAll(cur, newEnd, last);
-		console.log(sym + " " + cur + " "  + newEnd + " " + last);
 	}
 	if(ind.indexOf(parser.TIME_SERIES_FUNC) < 0 && retry == ALL_LONG) {
 		retry = ALL_SHORT;//other indicator cannot output full size
