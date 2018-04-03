@@ -66,10 +66,10 @@
 					{{favor.Change | number: '1.2-2' }}({{favor['Change Percent'] | percent: '1.0-2'}})
 					</span>
 					<ng-template [ngIf]="favor.Change > 0.0">
-						<img class = "stChange" src = "http://cs-server.usc.edu:45678/hw/hw6/images/Green_Arrow_Up.png">
+						<img class = "stChange" src = "assets/Green_Arrow_Up.png">
 					</ng-template>
 					<ng-template [ngIf]="favor.Change < 0.0">
-						<img class = "stChange" src = "http://cs-server.usc.edu:45678/hw/hw6/images/Red_Arrow_Down.png">
+						<img class = "stChange" src = "assets/Red_Arrow_Down.png">
 					</ng-template>
 				</td>
 				<td>{{favor.VolumeStr}}</td>

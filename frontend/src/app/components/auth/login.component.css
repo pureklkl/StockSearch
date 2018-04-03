@@ -2,6 +2,9 @@
    
    background-color: transparent !important;
 }
+
+
+
 a:focus, a:active {
 	outline: none !important;
 }

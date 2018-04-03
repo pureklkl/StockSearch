@@ -1,0 +1,11 @@
+.nav>li>button {
+  position: relative;
+  display: block;
+  margin: 10px 5px;
+}
+
+@media only screen and (max-width: 768px) {
+  .nav>li>button {
+    width: 100%
+  }
+}

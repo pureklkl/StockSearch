@@ -2,7 +2,7 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 
 body {
-	background-image: url("http://cs-server.usc.edu:45678/hw/hw8/images/background.png");
+	background-image: url("./assets/business-2089534_1920.jpg");
 }
 
 button > a {
@@ -17,4 +17,9 @@ button > a:hover {
 label.error {
 	font-weight: normal;
 	color: red;
+}
+
+mat-dialog-container {
+  margin-left: auto;
+  margin-right: auto;
 }
