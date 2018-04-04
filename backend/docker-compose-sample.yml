@@ -10,12 +10,12 @@ services:
       - mongo
   mongo:
     container_name: mongo
-    image: mongo：3.4.2
+    image: mongo:3.4.2
     environment:
-      # provide your credentials here
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=rootPassXXX
+      - MONGO_INITDB_ROOT_USERNAME=ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD=ROOT_PASSWORD
     volumes:
       - ./data:/data/db
+      - "$PWD/mongo-entrypoint/:/docker-entrypoint-initdb.d/"
     ports:
       - "27017:27017"
